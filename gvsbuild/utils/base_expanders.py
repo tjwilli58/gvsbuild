@@ -187,6 +187,20 @@ class Tarball(object):
         extract_exec(self.archive_file, self.build_dir, strip_one=not self.tarbomb, check_mark=True)
         log.end()
 
+    def export(self):
+        log.start('(tar) Exporting %s' % (self.name,))
+
+        path = os.path.join(self.export_dir, self.name + '.zip')
+        with zipfile.ZipFile(path, 'w') as zipped_path:
+            log.log('(tar) Exporting %s' % self.archive_file)
+            zipped_path.write(self.archive_file, arcname=os.path.basename(self.archive_file))
+
+            for p in self.patches:
+                log.log('(tar) Exporting %s' % p)
+                zipped_path.write(os.path.join(self.build_dir, p), arcname='patches/' + os.path.basename(p))
+
+        log.end()
+
 class MercurialRepo(object):
     def unpack(self):
         log.start_verbose('(hg) Cloning %s to %s' % (self.repo_url, self.build_dir))
@@ -200,22 +214,27 @@ class MercurialRepo(object):
         log.end()
 
 class GitRepo(object):
-    def create_zip(self):
-        """
-        Create a .zip file with the git checkout to be able to 
-        work offline and as a reference of the last correct build
-        """
+    def get_tag_name(self):
         if self.tag:
             # name the .zip from the tag, validating it
             t_name = [ c if c.isalnum() else '_' for c in self.tag ]
-            zip_post = ''.join(t_name)
+            tag_name = ''.join(t_name)
         else:
             of = os.path.join(self.build_dir, '.git-temp.rsp')
             self.builder.exec_msys('git rev-parse --short HEAD >%s' % (of, ), working_dir=self.build_dir)
             with open(of, 'rt') as fi:
-                zip_post = fi.readline().rstrip('\n')
+                tag_name = fi.readline().rstrip('\n')
             os.remove(of)
-            
+
+        return tag_name
+
+    def create_zip(self):
+        """
+        Create a .zip file with the git checkout to be able to
+        work offline and as a reference of the last correct build
+        """
+        zip_post = self.get_tag_name()
+
         # Be sure to have the git .zip dir
         git_tmp_dir = os.path.join(self.builder.opts.archives_download_dir, 'git')
         if not os.path.exists(git_tmp_dir):
@@ -266,6 +285,23 @@ class GitRepo(object):
             self.builder.copy_all(self.patch_dir, self.build_dir)
         log.end()
 
+    def export(self):
+        log.start('(git) Exporting directory %s' % (self.build_dir,))
+
+        filename = self.name + '-' + self.get_tag_name() + '.zip'
+        self.builder.exec_msys('git archive -o %s HEAD' % filename, working_dir=self.build_dir)
+
+        path = os.path.join(self.export_dir, self.name + '.zip')
+        with zipfile.ZipFile(path, 'w') as zipped_path:
+            log.log('(git) Exporting %s' % filename)
+            zipped_path.write(os.path.join(self.build_dir, filename), arcname=filename)
+
+            for p in self.patches:
+                log.log('(git) Exporting %s' % p)
+                zipped_path.write(os.path.join(self.build_dir, p), arcname='patches/' + os.path.basename(p))
+
+        log.end()
+
 class NullExpander(object):
     """
     Null expander to use when all the source are present in the script and
@@ -279,4 +315,7 @@ class NullExpander(object):
     def unpack(self):
         # Everything is in our script, nothing to download
         pass
+
+    def export(self):
+       pass
 

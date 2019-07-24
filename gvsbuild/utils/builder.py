@@ -413,6 +413,7 @@ class Builder(object):
                 proj.archive_file = None
             proj.patch_dir = os.path.join(self.opts.patches_root_dir, proj.prj_dir)
             proj.build_dir = os.path.join(self.working_dir, proj.prj_dir)
+            proj.export_dir = self.opts.export_dir
             proj.dependencies = [Project.get_project(dep) for dep in proj.dependencies]
             proj.dependents = []
             proj.load_defaults()
@@ -570,6 +571,7 @@ class Builder(object):
         self.__project = proj
 
         proj.prepare_build_dir()
+        proj.export()
 
         proj.pkg_dir = proj.build_dir + "-rel"
         shutil.rmtree(proj.pkg_dir, ignore_errors=True)
@@ -790,6 +792,10 @@ class Builder(object):
         if not os.path.exists(self.opts.archives_download_dir):
             log.log("Creating archives download directory %s" % (self.opts.archives_download_dir,))
             os.makedirs(self.opts.archives_download_dir)
+
+        if not os.path.exists(self.opts.export_dir):
+            log.log("Creating export directory %s" % (self.opts.export_dir,))
+            os.makedirs(self.opts.export_dir)
 
         log.start_verbose("Downloading %s" % (proj.archive_file,))
         # Setup for progress show

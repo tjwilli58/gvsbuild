@@ -286,6 +286,9 @@ class Project(object):
     def unpack(self):
         raise NotImplementedError("unpack")
 
+    def export(self):
+        raise NotImplementedError("export")
+
     def get_path(self):
         # Optional for projects
         pass
