@@ -1499,8 +1499,8 @@ class Project_openssl(Tarball, Project):
     def __init__(self):
         Project.__init__(self,
             'openssl',
-            archive_url = 'https://www.openssl.org/source/openssl-1.1.1g.tar.gz',
-            hash = 'ddb04774f1e32f0c49751e21b67216ac87852ceb056b75209af2443400636d46',
+            archive_url = 'https://www.openssl.org/source/openssl-1.1.1f.tar.gz',
+            hash = '186c6bfe6ecfba7a5b48c47f8a1673d0f3b0e5ba2e25602dd23b629975da3f35',
             dependencies = ['perl', 'nasm', 'msys2', ],
             )
 
@@ -1749,7 +1749,6 @@ class Project_pycairo(Tarball, Project):
         self.install(r'.\COPYING share\doc\pycairo')
         self.install(r'.\COPYING-LGPL-2.1 share\doc\pycairo')
         self.install(r'.\COPYING-MPL-1.1 share\doc\pycairo')
-        self.install(r'.\pc-files\* lib\pkgconfig')
         self.pop_location()
 
 @project_add
@@ -1783,8 +1782,6 @@ class Project_pygobject(Tarball, Project):
         if self.builder.opts.py_egg or self.builder.opts.py_wheel:
             self.install_dir('dist', 'python')
         self.install(r'.\COPYING share\doc\pygobject')
-        self.install(r'.\gi\pygobject.h include\pygobject-3.0')
-        self.install(r'.\pc-files\* lib\pkgconfig')
         self.pop_location()
 
 @project_add
@@ -1826,8 +1823,8 @@ class Project_wing(Tarball, Meson):
     def __init__(self):
         Project.__init__(self,
             'wing',
-            archive_url = 'https://gitlab.gnome.org/GNOME/wing/-/archive/v0.3.4/wing-v0.3.4.tar.gz',
-            hash = '7eb01cbfa33988349514963d669f1a86f4bf0a2afff0f8eabf10292f3de7ef8a',
+            archive_url = 'https://gitlab.gnome.org/GNOME/wing/-/archive/v0.3.2/wing-v0.3.2.tar.gz',
+            hash = '881eb60738359addd16de27ecd83105b3b16ba2a7e99901eb51abfb200d25a10',
             dependencies = ['ninja', 'meson', 'pkg-config', 'glib'],
             )
 
